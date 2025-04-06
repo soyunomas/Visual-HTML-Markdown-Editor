@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convertidor Visual HTML/Markdown (BS4)</title>
+
+    <!-- Bootstrap 4.6.2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <!-- Bootstrap Icons CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Summernote 0.8.18 CSS (para Bootstrap 4) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.css" rel="stylesheet">
+
+    <style>
+        body { padding-bottom: 5rem; padding-top: 20px; }
+        #editor-container { margin-top: 1rem; }
+        .note-editor.note-frame { border: 1px solid #dee2e6; }
+        .output-area { margin-top: 0.5rem; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 1rem; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+        .output-area code { font-family: monospace; font-size: 0.9em; }
+        .output-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .output-label { font-weight: bold; margin-bottom: 0; }
+        .button-group { margin-top: 1rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 10px; }
+        .action-button { min-width: 110px; }
+        .note-editor .note-modal { z-index: 1050; }
+        .note-editor .note-popover { z-index: 1060; }
+        .note-editor .dropdown-menu { z-index: 1070 !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Convertidor Visual HTML/Markdown</h1>
+        <!-- Texto Modificado -->
+        <p class="text-center text-muted">Edita visualmente, luego copia o descarga.</p>
+
+        <div id="editor-container" class="mt-3">
+            <div id="summernote">
+                <h2>Convertidor Visual HTML/Markdown</h2>
+                <p>Utiliza este editor WYSIWYG para crear tu contenido. Luego, puedes obtener, copiar o descargar la salida en formato <b>HTML</b> o <b>Markdown (GFM)</b>.</p>
+                <p><b>Funcionalidades Actuales:</b></p>
+                <ul>
+                    <li>Editor visual con barra de herramientas completa (fuentes, tamaño, estilos, listas, tablas, etc.).</li>
+                    <li>Generación de salida HTML limpia.</li>
+                    <li>Generación de salida Markdown compatible con GitHub (GFM).</li>
+                    <li>Previsualización de ambas salidas.</li>
+                    <li>Botones para copiar el HTML o el Markdown generados.</li>
+                    <li>Botones para descargar el HTML (.html) o el Markdown (.md) como archivos.</li>
+                    <li>Botón para limpiar el contenido del editor.</li>
+                </ul>
+                <p><i>¡Empieza a editar!</i></p>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button id="get-html-button" class="btn btn-primary">Mostrar HTML</button>
+            <button id="get-md-button" class="btn btn-secondary">Mostrar Markdown</button>
+            <button id="clear-editor-button" class="btn btn-danger"><i class="bi bi-trash"></i> Limpiar Editor</button>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                 <div class="output-header">
+                    <span class="output-label">Salida HTML:</span>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button id="copy-html-button" class="btn btn-outline-secondary action-button" title="Copiar HTML"><i class="bi bi-clipboard"></i> Copiar</button>
+                        <button id="download-html-button" class="btn btn-success action-button" title="Descargar HTML"><i class="bi bi-download"></i> Descargar</button>
+                    </div>
+                 </div>
+                <pre class="output-area"><code id="html-output">(Aquí aparecerá el HTML)</code></pre>
+            </div>
+            <div class="col-md-6 mb-3">
+                 <div class="output-header">
+                    <span class="output-label">Salida Markdown (GFM):</span>
+                     <div class="btn-group btn-group-sm" role="group">
+                        <button id="copy-md-button" class="btn btn-outline-secondary action-button" title="Copiar Markdown"><i class="bi bi-clipboard"></i> Copiar</button>
+                        <button id="download-md-button" class="btn btn-success action-button" title="Descargar Markdown"><i class="bi bi-download"></i> Descargar</button>
+                    </div>
+                 </div>
+                <pre class="output-area"><code id="md-output">(Aquí aparecerá el Markdown)</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/lang/summernote-es-ES.min.js"></script>
+    <script src="https://unpkg.com/turndown/dist/turndown.js"></script>
+    <script src="https://unpkg.com/turndown-plugin-gfm/dist/turndown-plugin-gfm.js"></script>
+
+    <script>
+        const htmlOutputElement = document.getElementById('html-output');
+        const mdOutputElement = document.getElementById('md-output');
+        const turndownService = new TurndownService({ headingStyle: 'atx', codeBlockStyle: 'fenced' });
+        turndownService.use(turndownPluginGfm.gfm);
+
+        // --- Funciones Helper ---
+        async function copyToClipboard(text, buttonElement) { /* ... (igual) ... */ if (!text) { console.warn("No hay texto para copiar."); return; }const originalHtml = buttonElement.innerHTML;const button = $(buttonElement);try {await navigator.clipboard.writeText(text);button.html('<i class="bi bi-check-lg"></i> Copiado!');button.removeClass('btn-outline-secondary').addClass('btn-success');setTimeout(() => {button.html(originalHtml);button.removeClass('btn-success').addClass('btn-outline-secondary');}, 1500);} catch (err) {console.error('Error al copiar:', err);button.html('<i class="bi bi-x-lg"></i> Error');button.removeClass('btn-outline-secondary').addClass('btn-danger');setTimeout(() => {button.html(originalHtml);button.removeClass('btn-danger').addClass('btn-outline-secondary');}, 2000);}}
+        function downloadFile(content, filename, mimeType) { /* ... (igual) ... */ if (!content || content === '<p><br></p>') { console.warn("No hay contenido para descargar."); alert("El editor está vacío."); return; }const blob = new Blob([content], { type: mimeType });const url = URL.createObjectURL(blob);const link = document.createElement('a');link.href = url;link.download = filename;document.body.appendChild(link);link.click();document.body.removeChild(link);URL.revokeObjectURL(url);}
+
+        // --- Inicialización Summernote y Listeners ---
+        $(document).ready(function() {
+            $('#summernote').summernote({
+                placeholder: 'Escribe aquí tu texto...',
+                height: 350,
+                minHeight: 150,
+                maxHeight: 600,
+                focus: true,
+                lang: 'es-ES',
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
+                    ['fontname', ['fontname']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph', 'height']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video', 'hr']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                 popover: {
+                    image: [['image', ['resizeFull', 'resizeHalf', 'resizeQuarter', 'resizeNone']], ['float', ['floatLeft', 'floatRight', 'floatNone']], ['remove', ['removeMedia']]],
+                    link: [['link', ['linkDialogShow', 'unlink']]],
+                    air: [['color', ['color']], ['font', ['bold', 'underline', 'clear']]]
+                 },
+                 styleTags: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'blockquote'],
+                 fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Helvetica', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana', 'Roboto', 'Open Sans', 'Lato'],
+                 fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18', '20', '22', '24', '28', '36', '48', '72'],
+                 lineHeights: ['0.8', '1.0', '1.2', '1.4', '1.5', '2.0', '3.0'],
+                 tableClassName: 'table table-bordered table-striped',
+                 callbacks: {
+                    onInit: function() { console.log('Summernote 0.8.18 (BS4) inicializado!'); },
+                    onError: function(e) { console.error('Error de Summernote:', e); }
+                 }
+            });
+
+            console.log('Summernote 0.8.18 (BS4) inicialización llamada.');
+
+            // --- LISTENERS ---
+            $('#get-html-button').on('click', function() { try { const htmlData = $('#summernote').summernote('code'); htmlOutputElement.textContent = htmlData; } catch (error) { console.error('Error al obtener HTML:', error); htmlOutputElement.textContent = 'Error.'; } });
+            $('#get-md-button').on('click', function() { try { const htmlData = $('#summernote').summernote('code'); const markdownData = turndownService.turndown(htmlData); mdOutputElement.textContent = markdownData; } catch (error) { console.error('Error al generar Markdown:', error); mdOutputElement.textContent = 'Error.'; } });
+            $('#clear-editor-button').on('click', function() { if (confirm("¿Seguro que quieres borrar todo el contenido del editor?")) { try { $('#summernote').summernote('code', ''); console.log("Editor vaciado."); } catch(error) { console.error("Error al vaciar editor:", error); } } }); // Usar 'code', '' para vaciar
+            $('#copy-html-button').on('click', function() { copyToClipboard(htmlOutputElement.textContent, this); });
+            $('#copy-md-button').on('click', function() { copyToClipboard(mdOutputElement.textContent, this); });
+            $('#download-html-button').on('click', function() { try{ const editorHtmlContent = $('#summernote').summernote('code'); const fullHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Contenido Exportado</title><style> body { font-family: sans-serif; padding: 20px; } </style></head><body>${editorHtmlContent}</body></html>`; downloadFile(fullHtml, 'contenido_editor.html', 'text/html;charset=utf-8'); } catch(error) { console.error("Error descarga HTML:", error); alert("Error al descargar HTML"); } });
+            $('#download-md-button').on('click', function() { try{ const editorHtmlContent = $('#summernote').summernote('code'); const markdownContent = turndownService.turndown(editorHtmlContent); downloadFile(markdownContent, 'contenido_editor.md', 'text/markdown;charset=utf-8'); } catch(error) { console.error("Error descarga MD:", error); alert("Error al descargar Markdown"); } });
+
+        }); // Fin de $(document).ready
+    </script>
+
+</body>
+</html>
